@@ -1,5 +1,7 @@
 package main;
 
+import Entity.Player;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,7 +9,7 @@ public class GamePanel extends JPanel implements Runnable {
     final int originalTileSize = 16;//16x16 tile
     final int scale=3;
 
-    final int tileSize = originalTileSize * scale;
+    public final int tileSize = originalTileSize * scale;
     final int maxScreenCol = 16;
     final int maxScreenRow = 12;
     final int screenWidth = maxScreenCol * tileSize; //768 pixels
@@ -17,11 +19,14 @@ public class GamePanel extends JPanel implements Runnable {
     int playerSpeed = 4;
     int playerX = screenWidth / 2;
     int playerY = screenHeight / 2;
+
+    //FPS
     int FPS = 60;
 
 
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
+    Player player =new Player(this,keyHandler);
 
     public GamePanel() {
 
@@ -43,26 +48,15 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.setColor(Color.WHITE);
-
-        g2d.fillRect(playerX,playerY, tileSize, tileSize);
+        player.draw(g2d);
 
         g2d.dispose();
+
     }
 
     public void update() {
-        if (keyHandler.up) {
-            playerY -= playerSpeed;
-        }
-        else if (keyHandler.down){
-            playerY += playerSpeed;
-        }
-        else if (keyHandler.left){
-            playerX -= playerSpeed;
-        }
-        else if (keyHandler.right){
-            playerX += playerSpeed;
-        }
+
+       player.update();
 
     }
 
@@ -70,11 +64,13 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
 
-        double drawInterval =1000000000 / FPS;
+        double drawInterval =1000000000 / FPS;// 0,16667s
         double delta = 0;
-        long lastTime = System.nanoTime();
+        long lastTime = System.nanoTime();//1e9 ns
 
         while(gameThread!=null) {
+
+            System.out.println(System.nanoTime());
 
             long now = System.nanoTime();
             delta += (now - lastTime) / drawInterval;
